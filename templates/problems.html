@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+There are {{count}} problems available.
+<br/>
+<br/>
+{% for problem in problems %}
+	<a href='/problems/{{problem.name}}'>{{problem.name}}</a>: <u>{{problem.description}}</u>
+	<br/>
+	{{problem.problemStatement}}
+	<br/>
+	<br/>
+{% endfor %}
+
+{% endblock %}

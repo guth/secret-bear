@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<link type="text/css" rel="stylesheet" href="/static/codemirror/codemirror.css" />
+<script type="text/javascript" src="/static/jquery.js"></script>
+
+<script type="text/javascript" src="/static/codemirror/codemirror.js"></script>
+<script type="text/javascript" src="/static/codemirror/mode/clike/clike.js"></script>
+<script type="text/javascript" src="/static/codemirror/mode/python/python.js"></script>
+
+<script type="text/javascript" src="/static/submission.js"></script>
+
+<h2>Problem Name: {{problem.name}}</h2>
+<br/>
+
+<b>Description: {{problem.description}}</b>
+<br/>
+
+Problem Statement: {{problem.problemStatement}}
+<br/>
+<br/>
+<form id="inputForm" method="post">
+	<select id="languageSelector" name="language">
+		<option value="Java">Java7 (sun-jdk-1.7.0_03)</option>
+		<option value="Python">Python (python 2.7.2)</option>
+	</select>
+	<br/>
+	<textarea id="editor" name="editor"></textarea>
+	<br/>
+	<input id="submit" type="submit" value="Submit" />
+</form>
+
+<br/>
+<div id="result">
+	Result will go here.
+</div>
+
+<div id="javaInfo">
+	<span id="javaSource">{{sourceDict['java']}}</span>
+	<span id="javaFolds">{{foldsDict['Java']}}</span>
+</div>
+<div id="pythonInfo">
+	<span id="pythonSource">{{sourceDict['py']}}</span>
+	<span id="pythonFolds">{{foldsDict['Python']}}</span>
+</div>
+{% endblock %}

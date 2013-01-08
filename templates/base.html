@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Programming Exercises</title>
+	<link type="text/css" rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+	<div class="header">
+		<span class="header-left">
+			<h1>Programming Exercises</h1>
+		</span>
+
+		<span class="header-right">
+			<a href="/problems">View all problems</a> |
+			
+
+			<span class="header-user">
+			{% if user %}
+				{{user.username | safe}} (<a href="/logout">logout</a>)
+			{% endif %}
+
+			{% if not user %}
+				<a href="/signup">Signup</a> |
+				<a href="/login">Login</a>
+			{% endif %}
+			</span>
+		</span>
+	</div>
+
+	<br/>
+	<br/>
+	<br/>
+
+	<div class="content">
+		{% block content %}
+		{% endblock %}
+	</div>
+</body>
+</html>

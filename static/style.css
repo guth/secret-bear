@@ -1,0 +1,38 @@
+body {
+	font-family: sans-serif;
+	background: #eee;
+}
+
+.header {
+	position: relative;
+	width: 100%;
+}
+
+.header-left {
+	float: left;
+}
+
+.header-right {
+	float: right;
+}
+
+a, h1, h2 {
+	color: #377BA8;
+}
+
+h1, h2 {
+	font-family: 'Georgia', serif;
+	margin: 0;
+	border-bottom: 2px solid #eee;
+}
+
+textarea {
+	/*border: 1px solid #eee;*/
+	width: 600px;
+	height: 300px;
+}
+
+/*.editor-scroll {
+  overflow-y: hidden;
+  overflow-x: auto;
+*/}
