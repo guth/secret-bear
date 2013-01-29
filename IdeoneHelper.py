@@ -1,11 +1,12 @@
 import logging
 import time
 from SOAPpy import WSDL
+from secret import IDEONE_USER, IDEONE_PASSWORD
 
 # creating wsdl client
 wsdl = WSDL.Proxy('http://ideone.com/api/1/service.wsdl')
-user = 'guth'
-password = 'Tfg$%^rrRT5'
+user = IDEONE_USER
+password = IDEONE_PASSWORD
 
 NO_ERROR = 'OK'
 

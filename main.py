@@ -8,10 +8,11 @@ import web
 import IdeoneHelper
 from handler import Handler
 from problem import Problem
+from secret import MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
 
 web.config.debug = True
 
-db = MySQLdb.connect("localhost", "root", "password", "MyDatabase")
+db = MySQLdb.connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE)
 
 urls = (
 	'/main/?', 'Main',
