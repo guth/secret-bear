@@ -1,12 +1,13 @@
 import cgi
 import logging
+import multiprocessing
 import MySQLdb
 import os
 import web
 
 import IdeoneHelper
-from Handler import Handler
-from Problem import Problem
+from handler import Handler
+from problem import Problem
 
 web.config.debug = True
 
@@ -102,6 +103,8 @@ class Judge(Handler):
 				return "Wrong Answer"
 
 if __name__ == "__main__": 
-	logging.basicConfig(level=logging.DEBUG) # filename='example.log'
+	logging.basicConfig(level=logging.DEBUG, filename="log.txt") # filename='example.log'
 	app = web.application(urls, globals())
+	# multiprocessing.Process(target=app.run).start()
+    # webbrowser.open_new_tab("http://0.0.0.0:8080/")
 	app.run()
