@@ -23,10 +23,6 @@ $(document).ready(function() {
 	sourceDict[JAVA_STR] = $('span#javaSource').text();
 	sourceDict[PYTHON_STR] = $('span#pythonSource').text();
 
-	var foldsDict = {};
-	foldsDict[JAVA_STR] = pyStringToList($('span#javaFolds').text());
-	foldsDict[PYTHON_STR] = pyStringToList($('span#pythonFolds').text());
-
 	$('div#javaInfo').hide();
 	$('div#pythonInfo').hide();
 
@@ -44,36 +40,14 @@ $(document).ready(function() {
 		}
 	);
 
-	// Set the initial folds
-	var folds = foldsDict[JAVA_STR];
-	for(var i=0; i<folds.length; i += 2)
-	{
-		codeMirror.markText(
-			{ line: folds[i], ch: 0 },
-			{ line: folds[i+1], ch: 100 },
-			{ collapsed: true }
-		);
-	}
-
 	document.getElementById("languageSelector").onchange = function(event) {
 		lang = $('#languageSelector').val();
 		var newMode = modes[lang];
 		var newSource = sourceDict[lang];
-		var newFolds = foldsDict[lang];
 
 		console.log("Changing source and mode to: " + newMode);
 		codeMirror.setOption("mode", newMode);
 		codeMirror.setOption("value", newSource);
-
-		console.log("New folds: " + newFolds.toString());
-		for(var i=0; i<newFolds.length; i += 2)
-		{
-			codeMirror.markText(
-				{ line: newFolds[i], ch: 0 },
-				{ line: newFolds[i+1], ch: 100 },
-				{ collapsed: true }
-			);
-		}
 	};
 
 	$('input#submit').click(function(event) {
@@ -99,7 +73,7 @@ $(document).ready(function() {
 			}
 		};
 
-		req.open("POST", "/prog/problems/judge/TEST", true);
+		req.open("POST", "/prog/problems/judge/" + problemName, true);
 		req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		req.setRequestHeader('X-CSRFToken', csrftoken);
 

@@ -12,6 +12,10 @@
 
 <script type="text/javascript" src="/static/submission.js"></script>
 
+<script type="text/javascript">
+	var problemName = '{{problem.name}}';
+</script>
+
 <h2>Problem Name: {{problem.name}}</h2>
 <br/>
 
@@ -39,10 +43,8 @@ Problem Statement: {{problem.problemStatement}}
 
 <div id="javaInfo">
 	<span id="javaSource">{{sourceDict.java}}</span>
-	<span id="javaFolds">{{foldsDict.Java}}</span>
 </div>
 <div id="pythonInfo">
 	<span id="pythonSource">{{sourceDict.py}}</span>
-	<span id="pythonFolds">{{foldsDict.Python}}</span>
 </div>
 {% endblock %}
