@@ -79,12 +79,13 @@ $(document).ready(function() {
 	$('input#submit').click(function(event) {
 		event.preventDefault();
 		event.stopPropagation();
-
+		var csrftoken = $.cookie('csrftoken');
 		var req = new XMLHttpRequest();
 
 		req.onreadystatechange = function (oEvent) {
 			if (req.readyState === 4)
 			{
+				console.log("Status: " + req.status);
 				if (req.status === 200)
 				{
 					console.log("Response: " + req.responseText);
@@ -93,12 +94,14 @@ $(document).ready(function() {
 				else
 				{
 					console.log("Error", req.statusText);
+					console.log("Response: " + req.responseText);
 				}
 			}
 		};
 
-		req.open("POST", "/problems/judge/BTREE", true);
+		req.open("POST", "/prog/problems/judge/TEST", true);
 		req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		req.setRequestHeader('X-CSRFToken', csrftoken);
 
 		language = $('select#languageSelector').val();
 		language = encodeURIComponent(language);
@@ -107,5 +110,7 @@ $(document).ready(function() {
 		source = encodeURIComponent(source);
 
 		req.send("language=" + language + "&editor=" + source);
+
+		$('div#result').text('Waiting for response...');
 	});
 });

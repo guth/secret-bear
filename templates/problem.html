@@ -4,6 +4,7 @@
 
 <link type="text/css" rel="stylesheet" href="/static/codemirror/codemirror.css" />
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script type="text/javascript" src="/static/jquery.cookie.js"></script>
 
 <script type="text/javascript" src="/static/codemirror/codemirror.js"></script>
 <script type="text/javascript" src="/static/codemirror/mode/clike/clike.js"></script>
@@ -37,11 +38,11 @@ Problem Statement: {{problem.problemStatement}}
 </div>
 
 <div id="javaInfo">
-	<span id="javaSource">{{sourceDict['java']}}</span>
-	<span id="javaFolds">{{foldsDict['Java']}}</span>
+	<span id="javaSource">{{sourceDict.java}}</span>
+	<span id="javaFolds">{{foldsDict.Java}}</span>
 </div>
 <div id="pythonInfo">
-	<span id="pythonSource">{{sourceDict['py']}}</span>
-	<span id="pythonFolds">{{foldsDict['Python']}}</span>
+	<span id="pythonSource">{{sourceDict.py}}</span>
+	<span id="pythonFolds">{{foldsDict.Python}}</span>
 </div>
 {% endblock %}

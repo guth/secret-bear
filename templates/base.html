@@ -11,12 +11,12 @@
 		</span>
 
 		<span class="header-right">
-			<a href="/problems">View all problems</a> |
+			<a href="/prog/problems">View all problems</a> |
 			
 
 			<span class="header-user">
 			{% if user %}
-				{{user.username | safe}} (<a href="/logout">logout</a>)
+				{{user.username}} (<a href="/logout">logout</a>)
 			{% endif %}
 
 			{% if not user %}
