@@ -4,7 +4,9 @@ import hashlib
 import random
 import string
 
-SECRET = "hunter2"
+import secret
+
+SECRET = secret.SECRET
 def hash_str(val):
 	return hmac.new(SECRET, str(val)).hexdigest()
 
