@@ -16,12 +16,12 @@
 
 			<span class="header-user">
 			{% if user %}
-				{{user.username}} (<a href="/logout">logout</a>)
+				{{user.username}} (<a href="/prog/logout">logout</a>)
 			{% endif %}
 
 			{% if not user %}
-				<a href="/signup">Signup</a> |
-				<a href="/login">Login</a>
+				<a href="/prog/signup">Signup</a> |
+				<a href="/prog/login">Login</a>
 			{% endif %}
 			</span>
 		</span>
