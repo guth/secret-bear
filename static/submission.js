@@ -22,12 +22,13 @@ $(document).ready(function() {
 	var sourceDict = {};
 	sourceDict[JAVA_STR] = $('span#javaSource').text();
 	sourceDict[PYTHON_STR] = $('span#pythonSource').text();
+	var currLanguage = JAVA_STR;
 
 	$('div#javaInfo').hide();
 	$('div#pythonInfo').hide();
 
 	// Set the inital text
-	$('textarea#editor').text(sourceDict[JAVA_STR]);
+	$('textarea#editor').text(sourceDict[currLanguage]);
 
 	var codeMirror = CodeMirror.fromTextArea(document.getElementById("editor"),
 		{
@@ -41,9 +42,13 @@ $(document).ready(function() {
 	);
 
 	document.getElementById("languageSelector").onchange = function(event) {
-		lang = $('#languageSelector').val();
-		var newMode = modes[lang];
-		var newSource = sourceDict[lang];
+		newLanguage = $('#languageSelector').val();
+		var newMode = modes[newLanguage];
+		var newSource = sourceDict[newLanguage];
+
+		// Save the current source and set the new language
+		sourceDict[currLanguage] = codeMirror.getValue();
+		currLanguage = newLanguage;
 
 		console.log("Changing source and mode to: " + newMode);
 		codeMirror.setOption("mode", newMode);
@@ -85,6 +90,6 @@ $(document).ready(function() {
 
 		req.send("language=" + language + "&editor=" + source);
 
-		$('div#result').text('Waiting for response...');
+		$('div#result').text('Submitted. Waiting for response...');
 	});
 });
