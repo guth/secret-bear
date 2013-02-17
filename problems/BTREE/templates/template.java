@@ -30,10 +30,8 @@ class template
 		}
 	}
 
-
-public boolean isTree(int[] tree)
-{
-	// Your code goes here
-}
-
+	public boolean isTree(int[] tree)
+	{
+		// Your code goes here
+	}
 } 

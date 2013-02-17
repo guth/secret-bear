@@ -23,11 +23,10 @@ class template
 		printArray(ans);
 	}
 
-
-public int[] positiveValues(int[] a)
-{
-	// Your code goes here
-}
+	public int[] positiveValues(int[] a)
+	{
+		// Your code goes here
+	}
 
 	public void printArray(int[] a)
 	{
