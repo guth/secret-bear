@@ -14,6 +14,8 @@
 
 <script type="text/javascript">
 	var problemName = '{{problem.name}}';
+	sourceDict[JAVA_STR] = '{{ sourceDict.java|escapejs }}';
+	sourceDict[PYTHON_STR] = '{{ sourceDict.py|escapejs }}';
 </script>
 
 <h2>Problem Name: {{problem.name}}</h2>
@@ -39,12 +41,5 @@ Problem Statement: {{problem.problemStatement}}
 <br/>
 <div id="result">
 	Result will go here.
-</div>
-
-<div id="javaInfo">
-	<span id="javaSource">{{sourceDict.java}}</span>
-</div>
-<div id="pythonInfo">
-	<span id="pythonSource">{{sourceDict.py}}</span>
 </div>
 {% endblock %}

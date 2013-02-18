@@ -1,3 +1,8 @@
+var JAVA_STR = 'Java';
+var PYTHON_STR = 'Python';
+
+var sourceDict = {};
+
 $(document).ready(function() {
 	
 	function pyStringToList(a) {
@@ -9,19 +14,13 @@ $(document).ready(function() {
 		for(var i = 0; i<a.length; i++) {
 			ret.push(parseInt(a[i]));
 		}
-		// console.log("ret:" + ret.toString());
 		return ret;
 	}
-	var JAVA_STR = 'Java';
-	var PYTHON_STR = 'Python';
 
 	var modes = {};
 	modes[JAVA_STR] = 'text/x-java';
 	modes[PYTHON_STR] = 'text/x-python';
-
-	var sourceDict = {};
-	sourceDict[JAVA_STR] = $('span#javaSource').text();
-	sourceDict[PYTHON_STR] = $('span#pythonSource').text();
+	
 	var currLanguage = JAVA_STR;
 
 	$('div#javaInfo').hide();
