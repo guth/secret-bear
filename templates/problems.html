@@ -6,8 +6,7 @@ There are {{count}} problems available.
 <br/>
 <br/>
 {% for problem in problems %}
-	<!-- <a href='/prog/problems/{{problem.name}}'>{{problem.name}}</a>: <u>{{problem.description}}</u> -->
-	<a href='{{problem.get_absolute_url}}'>{{problem.name}}</a>: <u>{{problem.description}}</u>
+	<a href='{% url problemDetailView problem.name %}'>{{problem.name}}</a>: <u>{{problem.description}}</u>
 	<br/>
 	{{problem.problemStatement}}
 	<br/>

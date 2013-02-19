@@ -11,9 +11,8 @@
 		</span>
 
 		<span class="header-right">
-			<a href="/prog/problems">View all problems</a> |
+			<a href="{% url allProblemsView %}">View all problems</a> |
 			
-
 			<span class="header-user">
 			{% if user %}
 				{{user.username}} (<a href="/prog/logout">logout</a>)
