@@ -9,6 +9,10 @@ input[type="text"], input[type="password"] {
 	width: 85%;
 }
 
+.error {
+	color: red;
+}
+
 .header {
 	position: relative;
 	width: 100%;

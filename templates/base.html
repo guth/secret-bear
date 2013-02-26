@@ -7,30 +7,39 @@
 	
 </head>
 <body>
-	<div class="row">
+	<div class="row-fluid">
 		<div class="span12">
-			<h1>Programming Exercises</h1>
+			<h1>
+				<a href="{% url mainView %}">Programming Exercises</a>
+			</h1>
 			<br/>
 		</div>
 	</div>
 
-	<div class="row">
+	<div class="row-fluid">
 		<div class="span2">
-			{% if user %}
+			{% if user.is_authenticated %}
 				Welcome, {{user.username}} <br/>
-				<a href="/logout">Logout</a> <br/>
-				<a href="/myaccount">My Account</a>
+				<a href="{% url logoutView %}">Logout</a> <br/>
+				<a href="/prog/myaccount">My Account</a>
 			{% endif %}
 
-			{% if not user %}
-				<form id="loginForm" method="post" action="/login">
+			{% if not user.is_authenticated %}
+				<form id="loginForm" method="post" action="{% url loginView %}">
+					{% csrf_token %}
 					Username: <br/>
 					<input type="text" name="username"/>
 					Password: </br>
 					<input type="password" name="password" />
 					<input type="submit" value="Login" />
 				</form>
-				<a href="/signup">Signup</a>
+				{% if messages %}
+					{% for message in messages %}
+    					<span class="error">{{ message }}</span>
+    					<br/>
+    				{% endfor %}
+				{% endif %}
+				<a href="{% url signupView %}">Signup</a>
 			{% endif %}
 			<br/>
 			<a href="{% url allProblemsView %}">View all problems</a>

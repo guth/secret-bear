@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link type="text/css" rel="stylesheet" href="/static/prog.css" />
+		<style type="text/css">
+			input[type="text"], input[type="password"] {
+				width: 130px;
+			}
+		</style>
+		<title>Signup</title>
+	</head>
+	<body>
+		<h2>Signup</h2>
+		<form method="post" action="{% url signupView %}">
+			{% csrf_token %}
+			<label>
+				Username
+				<input type="text" name="username" value="{{username}}"/>
+			</label>
+			<br/>
+			<label>
+				Password
+				<input type="password" name="password" value="{{password}}"/>
+			</label>
+			<br/>
+			<label>
+				Verify Password
+				<input type="password" name="verifyPassword" value="{{verifyPassword}}"/>
+			</label>
+			<br/>
+			<label>
+				Email (optional)
+				<input type="text" name="email" value="{{email}}"/>
+			</label>
+			<br/>
+			<input type="submit" />
+		</form>
+		<br/>
+		{% if messages %}
+			{% for message in messages %}
+				<span class="error">{{ message }}</span>
+				<br/>
+			{% endfor %}
+		{% endif %}
+		<a href="{% url mainView %}">Back to main</a>
+	</body>
+</html>
