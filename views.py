@@ -12,6 +12,9 @@ log = logging.getLogger(__name__)
 def main(request):
 	return render(request, 'main.html')
 
+def account(request):
+	return render(request, 'account.html')
+
 def allProblems(request):
 	problems = Problem.objects.all()
 	count = len(problems)

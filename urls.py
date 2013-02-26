@@ -5,6 +5,7 @@ urlpatterns = patterns('programmer.views',
 	url(r'^problems$', 'allProblems', name='allProblemsView'),
 	url(r'^problems/([A-Z]+)$', 'problemDetail', name='problemDetailView'),
 	url(r'^problems/judge/([A-Z]+)$', 'judge', name='judgeView'),
+	url(r'^account$', 'account', name='accountView')
 )
 
 urlpatterns += patterns('programmer.auth',
