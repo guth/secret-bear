@@ -5,7 +5,7 @@ import logging
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from programmer.models import Problem
+from models import Problem
 
 log = logging.getLogger(__name__)
 
