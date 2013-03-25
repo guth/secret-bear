@@ -1,6 +1,7 @@
-import os
-import IdeoneHelper
+import judge
 import logging
+import os
+import status
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -49,9 +50,10 @@ def problemDetail(request, name):
 	return render(request, "problem.html", {'problem':problem, 'sourceDict':sourceDict,
 											'foldsDict':foldsDict})
 
-def judge(request, name):
+def judgeProblem(request, name):
 	language = request.POST.get('language')
 	sourceCode = request.POST.get('editor')
+
 	log.debug("Language: %s" % language)
 	log.debug("Source length: %d" % len(sourceCode))
 
@@ -65,23 +67,10 @@ def judge(request, name):
 	outputString = open(outputFileName, 'r').read()
 	log.debug("Ouput length: %d" % len(outputString))
 	
-	result = IdeoneHelper.submitAndReturnOutput(sourceCode, language, inputString)
-	log.debug("Result: %s" % result)
+	result = judge.executeProgram(sourceCode, language, inputString, outputString)
 
-	try:
-		if result <= 20:
-			errorString = IdeoneHelper.errorStrings[result]
-			log.debug("Error string: %s" % errorString)
-			return HttpResponse(errorString)
-		else:
-			int('abc')
-	except:
-		log.debug("Comparing strings...")
-		if str(result).strip() == str(outputString).strip():
-			log.debug("AC!")
-			return HttpResponse("Answer Correct")
-		else:
-			log.debug("WA!")
-			return HttpResponse("Wrong Answer")
-
-	return HttpResponse("Foo")
+	resultText = status.resultCodeToText(result)
+	if resultText:
+		return HttpResponse(resultText)
+	else:
+		return HttpResponse("Invalid response. Something went wrong!")

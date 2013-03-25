@@ -6,3 +6,4 @@ Replace this with more appropriate tests for your application.
 """
 
 from unittests.ProblemTest import *
+from unittests.JudgeTest import *
