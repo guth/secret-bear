@@ -1,4 +1,5 @@
 import judge
+import languages
 import logging
 import os
 import status
@@ -28,15 +29,10 @@ def problemDetail(request, name):
 		return "Problem %s doesn't exist." % name
 	
 	problemPath = 'problems/%s/' % name
-
+	
 	sourceDict = {}
-	for ext in templates:
-		fileName = os.path.join(os.path.dirname(__file__), problemPath, 'templates/template.%s')
-		fileName = fileName % ext
-		f = open(fileName, 'r')
-		
-		sourceCode = f.read()
-		sourceDict[ext] = sourceCode
+	sourceDict[languages.JAVA_EXT] = problem.javaTemplate
+	sourceDict[languages.PYTHON_EXT] = problem.pythonTemplate
 
 	foldsDict = {}
 	f = open(os.path.join('programmer/' + problemPath + 'folds.info'), 'r')
@@ -53,23 +49,14 @@ def problemDetail(request, name):
 def judgeProblem(request, name):
 	language = request.POST.get('language')
 	sourceCode = request.POST.get('editor')
+	problem = Problem.objects.get(name=name)
 
-	log.debug("Language: %s" % language)
-	log.debug("Source length: %d" % len(sourceCode))
-
-	inputFileName = os.path.join(os.path.dirname(__file__), 'problems/%s/input')
-	inputFileName = inputFileName % name
-	inputString = open(inputFileName, 'r').read()
-	log.debug("Input length: %d" % len(inputString))
-	
-	outputFileName = os.path.join(os.path.dirname(__file__), 'problems/%s/output')
-	outputFileName = outputFileName % name
-	outputString = open(outputFileName, 'r').read()
-	log.debug("Ouput length: %d" % len(outputString))
+	inputString = problem.standardInput
+	outputString = problem.expectedOutput.replace('\r', '')
 	
 	result = judge.executeProgram(sourceCode, language, inputString, outputString)
-
 	resultText = status.resultCodeToText(result)
+
 	if resultText:
 		return HttpResponse(resultText)
 	else:

@@ -6,6 +6,12 @@ class Problem(models.Model):
 	problemStatement = models.TextField()
 	publishedDate = models.DateTimeField()
 
+	javaTemplate = models.TextField()
+	pythonTemplate = models.TextField()
+
+	standardInput = models.TextField()
+	expectedOutput = models.TextField()
+
 	def __unicode__(self):
 		return self.name
 

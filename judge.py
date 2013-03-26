@@ -1,16 +1,13 @@
-#!/usr/bin/python
-import argparse
 import envoy
 import logging
 import os
 import status
-import time
-import uuid
 
+from datetime import datetime
+from random import random
 from languages import PYTHON, JAVA, PYTHON_EXT, JAVA_EXT
 
 DEFAULT_TIMEOUT = 5
-
 
 langToExt = {}
 langToExt[JAVA] = JAVA_EXT
@@ -55,7 +52,6 @@ def getResult(response, expectedOutput):
 	WA: Process status was 0, output doesn't match
 	TLE: Process status was -15 (what envoy uses for TLE)
 	RE: Process status was not 0, there was an error. """
-
 	if response.status_code == -15:
 		return status.TIME_LIMIT_EXCEEDED
 	elif response.status_code != 0:
@@ -68,15 +64,17 @@ def getResult(response, expectedOutput):
 	return status.INTERNAL_ERROR
 
 def executeProgram(fileSource, language, stdin, expectedOutput):
-	log.debug("About to execute a %s program" % language)
 	ext = langToExt.get(language)
 	if not ext:
 		log.debug("Invalid language: '%s'" % language)
 		return None
 
-	log.debug("Creating execution directory...")
 	name = "template.%s" % ext
-	runDir = "/home/guth/Desktop/mysite/programmer/runs/%s" % time.time()
+
+	folderName = datetime.now().strftime("%m-%d-%Y_%H:%M:%S") + "_" + str(random())[2:10]
+	runDir = "/home/guth/Desktop/mysite/programmer/runs/%s" % folderName
+	
+	log.debug("Creating execution directory: %s" % runDir)
 	os.mkdir(runDir)
 	fileName = "%s/%s" % (runDir, name)
 
