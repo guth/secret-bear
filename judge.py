@@ -61,7 +61,6 @@ def getResult(response, expectedOutput):
 			return status.ANSWER_CORRECT
 		else:
 			return status.WRONG_ANSWER
-	return status.INTERNAL_ERROR
 
 def executeProgram(fileSource, language, stdin, expectedOutput):
 	ext = langToExt.get(language)

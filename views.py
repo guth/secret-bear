@@ -7,7 +7,7 @@ import status
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from models import Problem
+from models import Problem, Submission
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ def problemDetail(request, name):
 
 def judgeProblem(request, name):
 	if not request.user.is_authenticated():
-		return HttpResponse("Please log in to submit your solution")
+		return HttpResponse("Please log in to submit your solution.")
 
 	language = request.POST.get('language')
 	sourceCode = request.POST.get('editor')
@@ -58,9 +58,13 @@ def judgeProblem(request, name):
 	outputString = problem.expectedOutput.replace('\r', '')
 	
 	result = judge.executeProgram(sourceCode, language, inputString, outputString)
-	resultText = status.resultCodeToText(result)
+	resultTuple = status.resultCodeToText(result)
 
-	if resultText:
+	if resultTuple:
+		s = Submission(user=request.user, problem=problem, result=resultTuple[0],
+			sourceCode=sourceCode, language=language)
+		s.save()
+		resultText = resultTuple[1]
 		return HttpResponse(resultText)
 	else:
 		return HttpResponse("Invalid response. Something went wrong!")
