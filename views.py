@@ -29,7 +29,7 @@ def problemDetail(request, name):
 		return "Problem %s doesn't exist." % name
 	
 	problemPath = 'problems/%s/' % name
-	
+
 	sourceDict = {}
 	sourceDict[languages.JAVA_EXT] = problem.javaTemplate
 	sourceDict[languages.PYTHON_EXT] = problem.pythonTemplate
@@ -47,6 +47,9 @@ def problemDetail(request, name):
 											'foldsDict':foldsDict})
 
 def judgeProblem(request, name):
+	if not request.user.is_authenticated():
+		return HttpResponse("Please log in to submit your solution")
+
 	language = request.POST.get('language')
 	sourceCode = request.POST.get('editor')
 	problem = Problem.objects.get(name=name)
