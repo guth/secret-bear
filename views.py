@@ -15,7 +15,14 @@ def main(request):
 	return render(request, 'main.html')
 
 def account(request):
-	return render(request, 'account.html')
+	if not request.user.is_authenticated():
+		return render(request, 'main.html')
+	else:	
+		acSubmissions = Submission.objects.filter(user=request.user)
+		acSubmissions = acSubmissions.filter(result='AC')
+		numSolves = len(acSubmissions)
+		return render(request, 'account.html', {'acSubmissions' : acSubmissions,
+												'numSolves': numSolves})
 
 def allProblems(request):
 	problems = Problem.objects.all()

@@ -2,6 +2,12 @@
 
 {% block content %}
 
-Hello, {{user}}
-
+Hello, {{user}}, you have solved {{numSolves}} problems.
+<br/>
+{% for submission in acSubmissions %}
+	<br/>
+	<a href='{% url problemDetailView submission.problem.name %}'>
+		{{submission.problem.name}}
+	</a>
+{% endfor %}
 {% endblock %}
