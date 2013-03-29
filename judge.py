@@ -71,7 +71,9 @@ def executeProgram(fileSource, language, stdin, expectedOutput):
 	name = "template.%s" % ext
 
 	folderName = datetime.now().strftime("%m-%d-%Y_%H:%M:%S") + "_" + str(random())[2:10]
-	runDir = "/home/guth/Desktop/mysite/programmer/runs/%s" % folderName
+	
+	currDir = os.path.dirname(os.path.realpath(__file__))
+	runDir = currDir + "/runs/%s" % folderName
 	
 	log.debug("Creating execution directory: %s" % runDir)
 	os.mkdir(runDir)
