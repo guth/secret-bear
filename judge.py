@@ -160,36 +160,24 @@ def run_command(command, data=None, timeout=None, kill_timeout=None, env=None, c
 
     return r
 
-def runPython(fileName, stdin, expectedOutput):
-	""" Runs the given Python file with the given input. Returns
-	the proper status code based on the run succeeding and the
-	expected output being matched. """
+class ExecutionCommands():
+	def __init__(self, compileCmd, runCmd):
+		self.compileCmd = compileCmd
+		self.runCmd = runCmd
 
-	execArg =  "python %s" % fileName
-	r = run_command(execArg, data=stdin, timeout=DEFAULT_TIMEOUT)
-	return getResult(r, expectedOutput)
-	
-def runJava(fileName, stdin, expectedOutput):
-	""" Compiles and runs the given Java file with the given input.
-	Returns the proper status code based on compilation succeeding
-	and the expected output being matched. """
+def getPythonCommands(fileName):
+	compileArg = None
+	execArg = "python %s" % fileName
+	return ExecutionCommands(compileArg, execArg)
 
+def getJavaCommands(fileName):
 	compileArg = "javac %s" % fileName
-	r = run_command(compileArg, timeout=DEFAULT_TIMEOUT)
-	
-	if r.statusCode != 0:
-		return status.COMPILE_ERROR
 
 	i = fileName.rindex(".")
 	progName = fileName[:i]
 	execArg = "java %s" % progName
 
-	r = run_command(execArg, data=stdin, timeout=DEFAULT_TIMEOUT)
-	return getResult(r, expectedOutput)
-
-extToMethod = {}
-extToMethod[PYTHON_EXT] = runPython
-extToMethod[JAVA_EXT] = runJava
+	return ExecutionCommands(compileArg, execArg)
 
 def getResult(response, expectedOutput):
 	""" Returns AC, WA, TLE, or RE depending on process status and output.
@@ -207,9 +195,23 @@ def getResult(response, expectedOutput):
 		else:
 			return status.WRONG_ANSWER
 
+def runCommands(executionCommands, stdin, expectedOutput):
+	if executionCommands.compileCmd:
+		compileResponse = run_command(executionCommands.compileCmd)
+		result = getResult(compileResponse, expectedOutput)
+		if result == status.RUNTIME_ERROR:
+			return status.COMPILE_ERROR
+
+	runResponse = run_command(executionCommands.runCmd, data=stdin, timeout=DEFAULT_TIMEOUT)
+	return getResult(runResponse, expectedOutput)
+
+extToMethod = {}
+extToMethod[PYTHON_EXT] = getPythonCommands
+extToMethod[JAVA_EXT] = getJavaCommands
+
 def executeProgram(fileSource, language, stdin, expectedOutput):
 	ext = langToExt.get(language)
-	if not ext:
+	if not ext or ext not in extToMethod:
 		log.debug("Invalid language: '%s'" % language)
 		return None
 
@@ -231,8 +233,10 @@ def executeProgram(fileSource, language, stdin, expectedOutput):
 	f.close()
 
 	log.debug("About to execute file: %s" % fileName)
-	runFunc = extToMethod[ext]
-	result = runFunc(fileName, stdin, expectedOutput)
+	getCommandsFunc = extToMethod[ext]
+	execCommands = getCommandsFunc(fileName)
+	result = runCommands(execCommands, stdin, expectedOutput)
+
 	cleanDirectory(runDir)
 	return result
 
