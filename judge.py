@@ -46,7 +46,7 @@ class Command(object):
 		self.data = data
 		environ = dict(os.environ)
 		environ.update(env or {})
-
+		
 		def target():
 			try:
 				self.process = subprocess.Popen(self.cmd,
@@ -219,8 +219,8 @@ def executeProgram(fileSource, language, stdin, expectedOutput):
 
 	folderName = datetime.now().strftime("%m-%d-%Y_%H:%M:%S") + "_" + str(random())[2:10]
 	
-	currDir = os.path.dirname(os.path.realpath(__file__))
-	runDir = currDir + "/runs/%s" % folderName
+	currDirr = os.getcwd()
+	runDir = currDirr + "/runs/%s" % folderName
 	
 	log.debug("Creating execution directory: %s" % runDir)
 	os.mkdir(runDir)
