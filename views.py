@@ -64,9 +64,9 @@ def judgeProblem(request, name):
 	inputString = problem.standardInput
 	outputString = problem.expectedOutput.replace('\r', '')
 	
-	result = judge.executeProgram(sourceCode, language, inputString, outputString)
+	result = judge.subprocessJudge(sourceCode, language, inputString, outputString)
 	resultTuple = status.resultCodeToText(result)
-
+	
 	if resultTuple:
 		s = Submission(user=request.user, problem=problem, result=resultTuple[0],
 			sourceCode=sourceCode, language=language)

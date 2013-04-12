@@ -44,9 +44,8 @@ class Command(object):
 
 	def run(self, data, timeout, kill_timeout, env, cwd):
 		self.data = data
-		environ = dict(os.environ)
-		environ.update(env or {})
-		
+		environ = {}
+
 		def target():
 			try:
 				self.process = subprocess.Popen(self.cmd,
@@ -104,66 +103,66 @@ class Response(object):
 
 	def __repr__(self):
 		if len(self.command):
-			return '<Response [{0}]>'.format(self.command[0])
+			return '<Response [{0}, {1}]>'.format(self.command[0], self.status_code)
 		else:
 			return '<Response>'
-
-def expand_args(command):
-    """Parses command strings and returns a Popen-ready list."""
-
-    # Prepare arguments.
-    if isinstance(command, str):
-        splitter = shlex.shlex(command)
-        splitter.whitespace = '|'
-        splitter.whitespace_split = True
-        command = []
-
-        while True:
-            token = splitter.get_token()
-            if token:
-                command.append(token)
-            else:
-                break
-
-        command = list(map(shlex.split, command))
-
-    return command
-
-def run_command(command, data=None, timeout=None, kill_timeout=None, env=None, cwd=None):
-    """Executes a given commmand and returns Response.
-
-    Blocks until process is complete, or timeout is reached.
-    """
-
-    command = expand_args(command)
-    history = []
-    for c in command:
-
-        if len(history):
-            # due to broken pipe problems pass only first 10 KiB
-            data = history[-1].std_out[0:10*1024]
-
-        cmd = Command(c)
-        out, err = cmd.run(data, timeout, kill_timeout, env, cwd)
-
-        r = Response(process=cmd)
-
-        r.command = c
-        r.std_out = out
-        r.std_err = err
-        r.status_code = cmd.returncode
-
-        history.append(r)
-
-    r = history.pop()
-    r.history = history
-
-    return r
 
 class ExecutionCommands():
 	def __init__(self, compileCmd, runCmd):
 		self.compileCmd = compileCmd
 		self.runCmd = runCmd
+
+def expand_args(command):
+	"""Parses command strings and returns a Popen-ready list."""
+
+	# Prepare arguments.
+	if isinstance(command, str):
+		splitter = shlex.shlex(command)
+		splitter.whitespace = '|'
+		splitter.whitespace_split = True
+		command = []
+
+		while True:
+			token = splitter.get_token()
+			if token:
+				command.append(token)
+			else:
+				break
+
+		command = list(map(shlex.split, command))
+
+	return command
+
+def run_command(command, data=None, timeout=None, kill_timeout=None, env=None, cwd=None):
+	"""Executes a given commmand and returns Response.
+
+	Blocks until process is complete, or timeout is reached.
+	"""
+
+	command = expand_args(command)
+	history = []
+	for c in command:
+
+		if len(history):
+			# due to broken pipe problems pass only first 10 KiB
+			data = history[-1].std_out[0:10*1024]
+
+		cmd = Command(c)
+		out, err = cmd.run(data, timeout, kill_timeout, env, cwd)
+
+		r = Response(process=cmd)
+
+		r.command = c
+		r.std_out = out
+		r.std_err = err
+		r.status_code = cmd.returncode
+
+		history.append(r)
+
+	r = history.pop()
+	r.history = history
+
+	return r
 
 def getPythonCommands(fileName):
 	compileArg = None
@@ -209,6 +208,36 @@ extToMethod = {}
 extToMethod[PYTHON_EXT] = getPythonCommands
 extToMethod[JAVA_EXT] = getJavaCommands
 
+def subprocessJudge(fileSource, language, stdin, expectedOutput):
+	cmd = "python /home/guth/Desktop/mysite/programmer/judge.py"
+
+	inputTuple = (fileSource, language, stdin, expectedOutput)
+	pickledInput = subprocess.pickle.dumps(inputTuple)
+
+	response = run_command(cmd, data=pickledInput)
+	return int(response.std_out)
+
+def executeInNewProcess(fileSource, language, stdin, expectedOutput):
+	rr, ww = os.pipe()
+	pid = os.fork()
+
+	if pid: # parent process
+		os.close(ww)
+		rr = os.fdopen(rr) # turn r into a file object
+		result = rr.read()
+		rr.close()
+		os.waitpid(pid, 0) # make sure the child process gets cleaned up
+		return result
+	else: # child process
+		os.close(rr)
+		result = executeProgram(fileSource, language, stdin, expectedOutput)
+		result = str(result)
+		ww = os.fdopen(ww, 'w')
+
+		ww.write(result)
+		ww.close()
+		sys.exit(0)
+
 def executeProgram(fileSource, language, stdin, expectedOutput):
 	ext = langToExt.get(language)
 	if not ext or ext not in extToMethod:
@@ -219,11 +248,12 @@ def executeProgram(fileSource, language, stdin, expectedOutput):
 
 	folderName = datetime.now().strftime("%m-%d-%Y_%H:%M:%S") + "_" + str(random())[2:10]
 	
-	currDirr = os.getcwd()
-	runDir = currDirr + "/runs/%s" % folderName
+	currDir = '/var/chroot'
+	runDir = currDir + "/runs/%s" % folderName
 	
 	log.debug("Creating execution directory: %s" % runDir)
 	os.mkdir(runDir)
+	log.debug("Execution directory created.")
 	fileName = "%s/%s" % (runDir, name)
 
 	log.debug("Creating file: %s" % fileName)
@@ -246,3 +276,14 @@ def cleanDirectory(runDir):
 	for fileName in os.listdir(runDir):
 		os.remove(runDir + '/' + fileName)
 	os.rmdir(runDir)
+
+if __name__=='__main__':
+	# Takes a pickled tuple with the following arguments:
+	# (File source, Language, Standard Input, Expected Output)
+	allInput = sys.stdin.read()
+	unpickled = subprocess.pickle.loads(allInput)
+	fileSource, language, stdin, expectedOutput = unpickled
+
+	result = executeInNewProcess(fileSource, language, stdin, expectedOutput)
+	print result
+	sys.exit(0)
