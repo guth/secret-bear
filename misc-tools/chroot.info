@@ -27,3 +27,9 @@ o	python-setuptools
 o	man 
 o	openjdk-6-jdk
 o	openjdk-6-jre
+
+
+# To get an underprivileged user the ability to execute programs in the jail:
+sudo mkdir /var/chroot/runs
+adduser --system --no-create-home --uid=UID USER
+chown USER runs/
