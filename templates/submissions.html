@@ -10,6 +10,8 @@
 	<span class="{{s.result}}">{{s.result}}</span>
 	in {{s.language}} on {{s.submissionDate}}
 	<br/>
+{% empty %}
+	You don't have any submissions!
 {% endfor %}
 
 {% endblock %}
