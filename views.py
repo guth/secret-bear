@@ -55,18 +55,8 @@ def problemDetail(request, name):
 		submission = Submission.objects.get(id=sid)
 		ext = languages.langToExt[submission.language]
 		sourceDict[ext] = submission.sourceCode
-
-	foldsDict = {}
-	f = open(os.path.join('programmer/' + problemPath + 'folds.info'), 'r')
-	foldsInfo = f.read()
-	f.close()
-	for line in foldsInfo.split("\n"):
-		parts = line.split(" ")
-		lang = parts[0]
-		foldsDict[lang] = [int(parts[i]) for i in range(1,len(parts))]
 	
-	return render(request, "problem.html", {'problem':problem, 'sourceDict':sourceDict,
-											'foldsDict':foldsDict})
+	return render(request, "problem.html", {'problem':problem, 'sourceDict':sourceDict})
 
 def judgeProblem(request, name):
 	if not request.user.is_authenticated():
