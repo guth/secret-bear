@@ -7,7 +7,8 @@
 	<a href='{% url problemDetailView s.problem.name %}?sid={{s.id}}'>
 		{{s.problem.name}}
 	</a>:
-	{{s.result}} in {{s.language}} on {{s.submissionDate}}
+	<span class="{{s.result}}">{{s.result}}</span>
+	in {{s.language}} on {{s.submissionDate}}
 	<br/>
 {% endfor %}
 

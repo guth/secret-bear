@@ -26,8 +26,16 @@ input[type="text"], input[type="password"] {
 	float: right;
 }
 
-.correct {
-	color: #00C000;
+.correct, .AC {
+	color: green;
+}
+
+.WA {
+	color: red;
+}
+
+.RE, .CE, .TLE {
+	color: #C3B80D;
 }
 
 a, h1, h2 {
