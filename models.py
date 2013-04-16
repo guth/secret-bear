@@ -13,6 +13,14 @@ class Problem(models.Model):
 	standardInput = models.TextField()
 	expectedOutput = models.TextField()
 
+	@staticmethod
+	def getSolvedProblems(user):
+		""" Returns a set of all problem names solved by the user. """
+		solved = Submission.objects.filter(user=user, result='AC')
+		solved = solved.values('problem').distinct()
+		solved = set([s['problem'] for s in solved])
+		return solved
+
 	def __unicode__(self):
 		return self.name
 
