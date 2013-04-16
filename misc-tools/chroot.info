@@ -1,0 +1,29 @@
+# Add the following lines to /etc/schroot/schroot.conf
+[precise]
+description=Ubuntu Precise
+location=/home/guth/chroot
+priority=3
+users=your_username
+groups=sbuild
+root-groups=root
+
+# In a terminal, run:
+sudo debootstrap --variant=buildd --arch amd64 precise /var/chroot/ http://ubuntu.cs.utah.edu/ubuntu/
+
+# Check the chroot:
+schroot -l
+
+# Bind proc:
+sudo mount -o bind /proc /var/chroot/proc
+
+# If DNS resolution isn't working, copy resolv.conf into the chroot environment
+sudo cp /etc/resolv.conf /var/chroot/etc/resolv.conf
+
+# Installed the following packages in the chroot environment:
+o	sudo
+o	python-dev
+o	build-essential
+o	python-setuptools
+o	man 
+o	openjdk-6-jdk
+o	openjdk-6-jre
