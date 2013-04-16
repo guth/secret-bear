@@ -153,4 +153,3 @@ class template
 		wrongSource = self.JAVA_SOURCE_RUNTIME_ERROR
 		result = judge.subprocessJudge(wrongSource, language, stdin, "Foo")
 		self.assertEqual(result, status.RUNTIME_ERROR)
-

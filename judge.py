@@ -1,5 +1,6 @@
 import logging
 import os
+import resource
 import shlex
 import signal
 import subprocess
@@ -14,6 +15,7 @@ from random import random
 from languages import PYTHON, JAVA, PYTHON_EXT, JAVA_EXT
 
 DEFAULT_TIMEOUT = 5
+DEFAULT_MEMORY_LIMIT = 256 * 1024 * 1024 # 256 MB
 
 langToExt = {}
 langToExt[JAVA] = JAVA_EXT
@@ -33,6 +35,9 @@ def thread_is_alive(thread):
 	else:
 		return thread.isAlive()
 
+def setLimits():
+	resource.setrlimit(resource.RLIMIT_DATA, (DEFAULT_MEMORY_LIMIT, DEFAULT_MEMORY_LIMIT))
+
 class Command(object):
 	def __init__(self, cmd):
 		self.cmd = cmd
@@ -43,7 +48,7 @@ class Command(object):
 		self.data = None
 		self.exc = None
 
-	def run(self, data, timeout, kill_timeout, env, cwd):
+	def run(self, data, timeout, kill_timeout, env, cwd, preexec_fn):
 		self.data = data
 		environ = {}
 
@@ -58,6 +63,7 @@ class Command(object):
 					stderr=subprocess.PIPE,
 					bufsize=0,
 					cwd=cwd,
+					preexec_fn=preexec_fn,
 				)
 
 				if sys.version_info[0] >= 3: # Python 3 support
@@ -134,7 +140,7 @@ def expand_args(command):
 
 	return command
 
-def run_command(command, data=None, timeout=None, kill_timeout=None, env=None, cwd=None):
+def run_command(command, data=None, timeout=None, kill_timeout=None, env=None, cwd=None, preexec_fn=None):
 	""" Executes a given commmand and returns Response.
 	Blocks until process is complete, or timeout is reached. """
 
@@ -147,7 +153,7 @@ def run_command(command, data=None, timeout=None, kill_timeout=None, env=None, c
 			data = history[-1].std_out[0:10*1024]
 
 		cmd = Command(c)
-		out, err = cmd.run(data, timeout, kill_timeout, env, cwd)
+		out, err = cmd.run(data, timeout, kill_timeout, env, cwd, preexec_fn)
 
 		r = Response(process=cmd)
 
@@ -203,7 +209,7 @@ def runCommands(executionCommands, stdin, expectedOutput):
 			return status.COMPILE_ERROR
 		log.debug("Compilation successful. Attempting to run...")
 
-	runResponse = run_command(executionCommands.runCmd, data=stdin, timeout=DEFAULT_TIMEOUT)
+	runResponse = run_command(executionCommands.runCmd, data=stdin, timeout=DEFAULT_TIMEOUT, preexec_fn=setLimits)
 	return getResult(runResponse, expectedOutput)
 
 extToMethod = {}
