@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% for s in submissions %}
+	[{{s.id}}]
+	<a href='{% url problemDetailView s.problem.name %}?sid={{s.id}}'>
+		{{s.problem.name}}
+	</a>:
+	{{s.result}} in {{s.language}} on {{s.submissionDate}}
+	<br/>
+{% endfor %}
+
+{% endblock %}
