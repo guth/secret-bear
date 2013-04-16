@@ -6,6 +6,7 @@ import subprocess
 import sys
 import threading
 
+import config
 import status
 
 from datetime import datetime
@@ -214,7 +215,7 @@ def subprocessJudge(fileSource, language, stdin, expectedOutput):
 	arguments to standard in by pickling them. The judge process
 	forks and runs them in a new chroot'd process. """
 
-	cmd = "python /home/guth/Desktop/mysite/programmer/judge.py"
+	cmd = "python %s" % config.JUDGE_FILE_PATH
 
 	inputTuple = (fileSource, language, stdin, expectedOutput)
 	pickledInput = subprocess.pickle.dumps(inputTuple)
@@ -240,9 +241,9 @@ def executeInNewProcess(fileSource, language, stdin, expectedOutput):
 		os.close(r)
 		
 		try:
-			os.chdir('/home/guth/chroot')
+			os.chdir(config.CHROOT_DIR)
 			os.chroot('.')
-			os.setuid(1200)
+			os.setuid(config.JUDGE_UID)
 		except OSError as e:
 			log.debug("chroot failed. Abandoning execution.")
 			log.debug("%s" % e.message)
