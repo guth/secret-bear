@@ -17,17 +17,24 @@ def main(request):
 def account(request):
 	if not request.user.is_authenticated():
 		return render(request, 'main.html')
-	else:
-		acSubmissions = Submission.objects.filter(user=request.user, result='AC')
-		acSubmissions = acSubmissions.values('problem').distinct()
-		numSolves = acSubmissions.count()
+	
+	acSubmissions = Submission.objects.filter(user=request.user, result='AC')
+	acSubmissions = acSubmissions.values('problem').distinct()
+	numSolves = acSubmissions.count()
 
-		return render(request, 'account.html', {'acSubmissions' : acSubmissions,
-												'numSolves': numSolves})
+	return render(request, 'account.html', {'acSubmissions':acSubmissions,
+											'numSolves':numSolves})
+
+def submissions(request):
+	if not request.user.is_authenticated():
+		return render(request, 'main.html')
+
+	submissions = Submission.objects.filter(user=request.user).order_by('-submissionDate')
+	return render(request, 'submissions.html', {'submissions':submissions})
 
 def allProblems(request):
-	problems = Problem.objects.all()
-	count = len(problems)
+	problems = Problem.objects.all().order_by('-publishedDate')
+	count = problems.count()
 	return render(request, 'problems.html', {'problems':problems, 'count':count})
 
 templates = ['java', 'py']
@@ -41,6 +48,13 @@ def problemDetail(request, name):
 	sourceDict = {}
 	sourceDict[languages.JAVA_EXT] = problem.javaTemplate
 	sourceDict[languages.PYTHON_EXT] = problem.pythonTemplate
+
+	# If a submission ID was passed, put that code as the template.
+	sid = request.GET.get('sid')
+	if sid:
+		submission = Submission.objects.get(id=sid)
+		ext = languages.langToExt[submission.language]
+		sourceDict[ext] = submission.sourceCode
 
 	foldsDict = {}
 	f = open(os.path.join('programmer/' + problemPath + 'folds.info'), 'r')

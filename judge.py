@@ -8,18 +8,15 @@ import sys
 import threading
 
 import config
+import languages
 import status
 
 from datetime import datetime
 from random import random
-from languages import PYTHON, JAVA, PYTHON_EXT, JAVA_EXT
+from languages import PYTHON_EXT, JAVA_EXT
 
 DEFAULT_TIMEOUT = 5
 DEFAULT_MEMORY_LIMIT = 256 * 1024 * 1024 # 256 MB
-
-langToExt = {}
-langToExt[JAVA] = JAVA_EXT
-langToExt[PYTHON] = PYTHON_EXT
 
 log = logging.getLogger(__name__)
 
@@ -267,7 +264,7 @@ def executeInNewProcess(fileSource, language, stdin, expectedOutput):
 def executeProgram(fileSource, language, stdin, expectedOutput):
 	""" Creates a new execution directory, source file, and runs it in
 	a subprocess. Cleans the directory and returns the result. """
-	ext = langToExt.get(language)
+	ext = languages.langToExt.get(language)
 	if not ext or ext not in extToMethod:
 		log.debug("Invalid language: '%s'" % language)
 		return None
