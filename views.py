@@ -35,7 +35,13 @@ def submissions(request):
 def allProblems(request):
 	problems = Problem.objects.all().order_by('-publishedDate')
 	count = problems.count()
-	return render(request, 'problems.html', {'problems':problems, 'count':count})
+
+	solvedProblems = set()
+	if request.user.is_authenticated():
+		solvedProblems = Problem.getSolvedProblems(request.user)
+
+	return render(request, 'problems.html', {'problems':problems, 'count':count,
+											'solvedProblems':solvedProblems})
 
 templates = ['java', 'py']
 def problemDetail(request, name):

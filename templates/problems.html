@@ -7,6 +7,9 @@ There are {{count}} problems available.
 <br/>
 {% for problem in problems %}
 	<a href='{% url problemDetailView problem.name %}'>{{problem.name}}</a>: <u>{{problem.description}}</u>
+	{% if problem.name in solvedProblems %}
+		<span class="correct">[solved]</span>
+	{% endif %}
 	<br/>
 	{{problem.problemStatement}}
 	<br/>
