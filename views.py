@@ -17,10 +17,11 @@ def main(request):
 def account(request):
 	if not request.user.is_authenticated():
 		return render(request, 'main.html')
-	else:	
-		acSubmissions = Submission.objects.filter(user=request.user)
-		acSubmissions = acSubmissions.filter(result='AC')
-		numSolves = len(acSubmissions)
+	else:
+		acSubmissions = Submission.objects.filter(user=request.user, result='AC')
+		acSubmissions = acSubmissions.values('problem').distinct()
+		numSolves = acSubmissions.count()
+
 		return render(request, 'account.html', {'acSubmissions' : acSubmissions,
 												'numSolves': numSolves})
 
