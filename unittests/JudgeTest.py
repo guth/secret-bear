@@ -9,6 +9,38 @@ class DummyResult():
 class JudgeTest(TestCase):
 	def setUp(self):
 		self.HELLO_WORLD = "Hello, world!"
+		self.PYTHON_SOURCE = "print '%s'" % self.HELLO_WORLD
+		self.JAVA_SOURCE = """
+class template
+{
+	public static void main(String[] args) throws Exception
+	{
+		template t = new template();
+		t.go();
+	}
+
+	public void go() throws Exception
+	{
+		System.out.println("%s");
+	}
+}""" % self.HELLO_WORLD
+		self.JAVA_SOURCE_RUNTIME_ERROR = """
+class template
+{
+	public static void main(String[] args) throws Exception
+	{
+		template t = new template();
+		t.go();
+	}
+
+	public void go() throws Exception
+	{
+		int[] a = new int[5];
+		for(int i=0; i<=a.length; i++)
+			a[i] = i;
+		System.out.println("Foo");
+	}
+}"""
 
 	def test_get_python_commands(self):
 		cmds = judge.getPythonCommands("main.py")
@@ -46,29 +78,79 @@ class JudgeTest(TestCase):
 
 		self.assertEqual(result, status.TIME_LIMIT_EXCEEDED)
 
-	def test_execute_program(self):
-		source = "print '%s'" % self.HELLO_WORLD
+	def test_execute_program_python(self):
+		source = self.PYTHON_SOURCE
 		language = languages.PYTHON
 		stdin = ""
-		expectedOutput = self.HELLO_WORLD
-		result = judge.executeProgram(source, language, stdin, expectedOutput)
+		expectedOutputs = [self.HELLO_WORLD, "!!"]
+		expectedResults = [status.ANSWER_CORRECT, status.WRONG_ANSWER]
 
-		self.assertEqual(result, status.ANSWER_CORRECT)
+		for i in range(len(expectedOutputs)):
+			result = judge.executeProgram(source, language, stdin, expectedOutputs[i])
+			self.assertEqual(result, expectedResults[i])
 
-	def test_execute_in_new_process(self):
-		source = "print '%s'" % self.HELLO_WORLD
+		wrongSource = "foo"
+		result = judge.executeProgram(wrongSource, language, stdin, "")
+		self.assertEqual(result, status.RUNTIME_ERROR)
+
+		infiniteSource = "while True: pass"
+		result = judge.executeProgram(infiniteSource, language, stdin, "")
+		self.assertEqual(result, status.TIME_LIMIT_EXCEEDED)
+
+	def test_execute_program_java(self):
+		source = self.JAVA_SOURCE
+		language = languages.JAVA
+		stdin = ""
+		expectedOutputs = [self.HELLO_WORLD, "!!"]
+		expectedResults = [status.ANSWER_CORRECT, status.WRONG_ANSWER]
+		
+		for i in range(len(expectedOutputs)):
+			result = judge.executeProgram(source, language, stdin, expectedOutputs[i])
+			self.assertEqual(result, expectedResults[i])
+
+		wrongSource = source + "!;"
+		result = judge.executeProgram(wrongSource, language, stdin, "")
+		self.assertEqual(result, status.COMPILE_ERROR)
+
+		wrongSource = self.JAVA_SOURCE_RUNTIME_ERROR
+		result = judge.executeProgram(wrongSource, language, stdin, "Foo")
+		self.assertEqual(result, status.RUNTIME_ERROR)
+
+	def test_subprocess_judge_python(self):
+		source = self.PYTHON_SOURCE
 		language = languages.PYTHON
 		stdin = ""
-		expectedOutput = self.HELLO_WORLD
-		result = judge.executeProgram(source, language, stdin, expectedOutput)
+		expectedOutputs = [self.HELLO_WORLD, "!!"]
+		expectedResults = [status.ANSWER_CORRECT, status.WRONG_ANSWER]
 
-		self.assertEqual(result, status.ANSWER_CORRECT)
+		for i in range(len(expectedOutputs)):
+			result = judge.subprocessJudge(source, language, stdin, expectedOutputs[i])
+			self.assertEqual(result, expectedResults[i])
 
-	def test_subprocess_judge(self):
-		source = "print '%s'" % self.HELLO_WORLD
-		language = languages.PYTHON
+		wrongSource = "foo"
+		result = judge.subprocessJudge(wrongSource, language, stdin, "")
+		self.assertEqual(result, status.RUNTIME_ERROR)
+
+		infiniteSource = "while True: pass"
+		result = judge.subprocessJudge(infiniteSource, language, stdin, "")
+		self.assertEqual(result, status.TIME_LIMIT_EXCEEDED)
+
+	def test_subprocess_judge_java(self):
+		source = self.JAVA_SOURCE
+		language = languages.JAVA
 		stdin = ""
-		expectedOutput = self.HELLO_WORLD
-		result = judge.subprocessJudge(source, language, stdin, expectedOutput)
+		expectedOutputs = [self.HELLO_WORLD, "!!"]
+		expectedResults = [status.ANSWER_CORRECT, status.WRONG_ANSWER]
+		
+		for i in range(len(expectedOutputs)):
+			result = judge.subprocessJudge(source, language, stdin, expectedOutputs[i])
+			self.assertEqual(result, expectedResults[i])
 
-		self.assertEqual(result, status.ANSWER_CORRECT)
+		wrongSource = source + "!;"
+		result = judge.subprocessJudge(wrongSource, language, stdin, "")
+		self.assertEqual(result, status.COMPILE_ERROR)
+
+		wrongSource = self.JAVA_SOURCE_RUNTIME_ERROR
+		result = judge.subprocessJudge(wrongSource, language, stdin, "Foo")
+		self.assertEqual(result, status.RUNTIME_ERROR)
+

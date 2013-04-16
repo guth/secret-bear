@@ -88,7 +88,7 @@ class Command(object):
 		return self.out, self.err
 
 class Response(object):
-	"""An executed command's response"""
+	""" An executed command's response. """
 
 	def __init__(self, process=None):
 		super(Response, self).__init__()
@@ -113,7 +113,7 @@ class ExecutionCommands():
 		self.runCmd = runCmd
 
 def expand_args(command):
-	"""Parses command strings and returns a Popen-ready list."""
+	""" Parses command strings and returns a Popen-ready list. """
 
 	# Prepare arguments.
 	if isinstance(command, str):
@@ -134,10 +134,8 @@ def expand_args(command):
 	return command
 
 def run_command(command, data=None, timeout=None, kill_timeout=None, env=None, cwd=None):
-	"""Executes a given commmand and returns Response.
-
-	Blocks until process is complete, or timeout is reached.
-	"""
+	""" Executes a given commmand and returns Response.
+	Blocks until process is complete, or timeout is reached. """
 
 	command = expand_args(command)
 	history = []
@@ -195,11 +193,14 @@ def getResult(response, expectedOutput):
 			return status.WRONG_ANSWER
 
 def runCommands(executionCommands, stdin, expectedOutput):
+	""" Tries to compile and run the given commands in subprocesses.
+	Returns the appropriate status code when finished. """
 	if executionCommands.compileCmd:
 		compileResponse = run_command(executionCommands.compileCmd)
 		result = getResult(compileResponse, expectedOutput)
 		if result == status.RUNTIME_ERROR:
 			return status.COMPILE_ERROR
+		log.debug("Compilation successful. Attempting to run...")
 
 	runResponse = run_command(executionCommands.runCmd, data=stdin, timeout=DEFAULT_TIMEOUT)
 	return getResult(runResponse, expectedOutput)
@@ -209,6 +210,10 @@ extToMethod[PYTHON_EXT] = getPythonCommands
 extToMethod[JAVA_EXT] = getJavaCommands
 
 def subprocessJudge(fileSource, language, stdin, expectedOutput):
+	""" Runs the judge as a subprocess and passes the required
+	arguments to standard in by pickling them. The judge process
+	forks and runs them in a new chroot'd process. """
+
 	cmd = "python /home/guth/Desktop/mysite/programmer/judge.py"
 
 	inputTuple = (fileSource, language, stdin, expectedOutput)
@@ -218,43 +223,59 @@ def subprocessJudge(fileSource, language, stdin, expectedOutput):
 	return int(response.std_out)
 
 def executeInNewProcess(fileSource, language, stdin, expectedOutput):
-	rr, ww = os.pipe()
+	""" Forks and runs the given code in a child, chroot'd process.
+	The result (AC, WA, etc.) is written to a pipe that the parent
+	reads from and is returned. """
+	r, w = os.pipe()
 	pid = os.fork()
 
 	if pid: # parent process
-		os.close(ww)
-		rr = os.fdopen(rr) # turn r into a file object
-		result = rr.read()
-		rr.close()
+		os.close(w)
+		r = os.fdopen(r) # turn r into a file object
+		result = r.read()
+		r.close()
 		os.waitpid(pid, 0) # make sure the child process gets cleaned up
 		return result
 	else: # child process
-		os.close(rr)
+		os.close(r)
+		
+		try:
+			os.chdir('/home/guth/chroot')
+			os.chroot('.')
+			os.setuid(1200)
+		except OSError as e:
+			log.debug("chroot failed. Abandoning execution.")
+			log.debug("%s" % e.message)
+			w.write(status.INTERNAL_ERROR)
+			sys.exit(1)
+
 		result = executeProgram(fileSource, language, stdin, expectedOutput)
 		result = str(result)
-		ww = os.fdopen(ww, 'w')
 
-		ww.write(result)
-		ww.close()
+		w = os.fdopen(w, 'w')
+		w.write(result)
+		w.close()
 		sys.exit(0)
 
 def executeProgram(fileSource, language, stdin, expectedOutput):
+	""" Creates a new execution directory, source file, and runs it in
+	a subprocess. Cleans the directory and returns the result. """
 	ext = langToExt.get(language)
 	if not ext or ext not in extToMethod:
 		log.debug("Invalid language: '%s'" % language)
 		return None
 
-	name = "template.%s" % ext
+	fileName = "template.%s" % ext
 
+	# Create an execution directory based on the current time plus some randomness
 	folderName = datetime.now().strftime("%m-%d-%Y_%H:%M:%S") + "_" + str(random())[2:10]
-	
-	currDir = '/var/chroot'
-	runDir = currDir + "/runs/%s" % folderName
-	
-	log.debug("Creating execution directory: %s" % runDir)
+	runDir = 'runs/%s' % folderName
+
+	log.debug("Creating execution directory: %s" % os.path.join(os.getcwd(), runDir))
 	os.mkdir(runDir)
 	log.debug("Execution directory created.")
-	fileName = "%s/%s" % (runDir, name)
+	os.chdir(runDir)
+	log.debug("chdir'd into execution directory.")
 
 	log.debug("Creating file: %s" % fileName)
 	f = file(fileName, 'w')
@@ -267,12 +288,14 @@ def executeProgram(fileSource, language, stdin, expectedOutput):
 	execCommands = getCommandsFunc(fileName)
 	result = runCommands(execCommands, stdin, expectedOutput)
 
+	# Move out of the execution directory and delete it.
+	os.chdir("../..")
 	cleanDirectory(runDir)
 	return result
 
 def cleanDirectory(runDir):
 	""" Removes the given directory and all files inside of it """
-	log.debug("Removing directory: %s" % runDir)
+	log.debug("Removing directory: %s" % os.path.join(os.getcwd(), runDir))
 	for fileName in os.listdir(runDir):
 		os.remove(runDir + '/' + fileName)
 	os.rmdir(runDir)
@@ -280,6 +303,7 @@ def cleanDirectory(runDir):
 if __name__=='__main__':
 	# Takes a pickled tuple with the following arguments:
 	# (File source, Language, Standard Input, Expected Output)
+	# and runs it in a forked, chroot'd process.
 	allInput = sys.stdin.read()
 	unpickled = subprocess.pickle.loads(allInput)
 	fileSource, language, stdin, expectedOutput = unpickled
