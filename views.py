@@ -59,8 +59,9 @@ def problemDetail(request, name):
 	sid = request.GET.get('sid')
 	if sid:
 		submission = Submission.objects.get(id=sid)
-		ext = languages.langToExt[submission.language]
-		sourceDict[ext] = submission.sourceCode
+		if submission.user == request.user:
+			ext = languages.langToExt[submission.language]
+			sourceDict[ext] = submission.sourceCode
 	
 	return render(request, "problem.html", {'problem':problem, 'sourceDict':sourceDict})
 
