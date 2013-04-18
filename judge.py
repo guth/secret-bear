@@ -221,7 +221,7 @@ def subprocessJudge(fileSource, language, stdin, expectedOutput):
 	arguments to standard in by pickling them. The judge process
 	forks and runs them in a new chroot'd process. """
 
-	cmd = "python %s" % config.JUDGE_FILE_PATH
+	cmd = "python %s" % config.JUDGE_FILE_PATH # TODO: Change to __file__?
 
 	inputTuple = (fileSource, language, stdin, expectedOutput)
 	pickledInput = subprocess.pickle.dumps(inputTuple)
