@@ -15,7 +15,7 @@ from datetime import datetime
 from random import random
 from languages import PYTHON_EXT, JAVA_EXT
 
-DEFAULT_TIMEOUT = 5
+DEFAULT_TIMEOUT = 5 # seconds
 DEFAULT_MEMORY_LIMIT = 256 * 1024 * 1024 # 256 MB
 
 log = logging.getLogger(__name__)
@@ -112,6 +112,7 @@ class Response(object):
 			return '<Response>'
 
 class ExecutionCommands():
+	""" Compile and Run commands to run user submitted programs. """
 	def __init__(self, compileCmd, runCmd):
 		self.compileCmd = compileCmd
 		self.runCmd = runCmd
@@ -167,11 +168,13 @@ def run_command(command, data=None, timeout=None, kill_timeout=None, env=None, c
 	return r
 
 def getPythonCommands(fileName):
+	""" Creates the ExecutionCommands for the given Python file. """
 	compileArg = None
 	execArg = "python %s" % fileName
 	return ExecutionCommands(compileArg, execArg)
 
 def getJavaCommands(fileName):
+	""" Creates the ExecutionCommands for the given Java file. """
 	compileArg = "javac %s" % fileName
 
 	i = fileName.rindex(".")
@@ -184,7 +187,7 @@ def getResult(response, expectedOutput):
 	""" Returns AC, WA, TLE, or RE depending on process status and output.
 	AC: Process status was 0, output matches
 	WA: Process status was 0, output doesn't match
-	TLE: Process status was -15 (what envoy uses for TLE)
+	TLE: Process status was -15 (what Envoy uses for TLE)
 	RE: Process status was not 0, there was an error. """
 	if response.status_code == -15:
 		return status.TIME_LIMIT_EXCEEDED

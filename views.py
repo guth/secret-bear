@@ -56,6 +56,7 @@ def problemDetail(request, name):
 	sourceDict[languages.PYTHON_EXT] = problem.pythonTemplate
 
 	# If a submission ID was passed, put that code as the template.
+	# TODO: Automatically switch to that language
 	sid = request.GET.get('sid')
 	if sid:
 		submission = Submission.objects.get(id=sid)
