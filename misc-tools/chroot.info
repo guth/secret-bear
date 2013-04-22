@@ -1,7 +1,7 @@
 # Add the following lines to /etc/schroot/schroot.conf
 [precise]
 description=Ubuntu Precise
-location=/var/chroot
+directory=/var/chroot
 priority=3
 users=your_username
 groups=sbuild
