@@ -1,4 +1,4 @@
 secret-bear
 ===========
 
-Temp repository for a CS interview preperation website
+Repository for a senior project: an algorithm judge + code runner for CS interview preparation website
